@@ -1,4 +1,4 @@
-import{ ReactElement } from 'react'
+import { ReactElement } from 'react'
 
 interface Props {
     
@@ -6,8 +6,8 @@ interface Props {
 
 export default function Home({}: Props): ReactElement {
     return (
-        <div>
-            Hi
-        </div>
+        <h2>
+            This is Home Page.
+        </h2>
     )
 }

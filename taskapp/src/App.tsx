@@ -2,41 +2,27 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Link
 } from "react-router-dom";
+import TopBar from "./components/Topbar";
+import './App.scss';
+import Home from "./pages/Home";
 
 export default function BasicExample() {
   return (
     <Router>
-      <div>
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/about">About</Link>
-          </li>
-          <li>
-            <Link to="/dashboard">Dashboard</Link>
-          </li>
-        </ul>
+      <TopBar />
+      <Routes>
 
-        <hr />
+          <Route path="/" element={<Home />} />
+          <Route path="home" element={<Home />} />
+          <Route path="about" element={<About />} />
 
-        <Routes>
-          <Route path="/" element={<Home/>}>
-          </Route>
-        </Routes>
-      </div>
-    </Router>
-  );
-}
-
-function Home() {
-  return (
-    <div>
-      <h2>Home</h2>
-    </div>
+          {/* Using path="*"" means "match anything", so this route
+                acts like a catch-all for URLs that we don't have explicit
+              routes for. */}
+          {/* <Route path="*" element={<NoMatch />} /> */}
+      </Routes>
+    </Router >
   );
 }
 
@@ -44,14 +30,6 @@ function About() {
   return (
     <div>
       <h2>About</h2>
-    </div>
-  );
-}
-
-function Dashboard() {
-  return (
-    <div>
-      <h2>Dashboard</h2>
     </div>
   );
 }
