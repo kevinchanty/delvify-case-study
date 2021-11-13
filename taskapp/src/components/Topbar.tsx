@@ -11,11 +11,12 @@ export default function TopBar({ }: Props): ReactElement {
             <Container>
                 <Navbar.Brand as={Link} to="/home">Simple Task App</Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
+
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="me-auto">
                         <Nav.Link as={Link} to="/home">Home</Nav.Link>
-                        <Nav.Link href="#link">Link</Nav.Link>
-                        <NavDropdown title="Dropdown" id="basic-nav-dropdown">
+                        <Nav.Link as={Link} to="list">List for Dev only</Nav.Link>
+                        <NavDropdown title="kevinchan984" id="basic-nav-dropdown">
                             <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
                             <NavDropdown.Item href="#action/3.2">Another action</NavDropdown.Item>
                             <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>

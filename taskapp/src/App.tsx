@@ -5,23 +5,26 @@ import {
 } from "react-router-dom";
 import TopBar from "./components/Topbar";
 import './App.scss';
-import Home from "./pages/Home";
+import HomePage from "./pages/HomePage";
+import { Container } from "react-bootstrap";
+import ListPage from "./pages/ListPage";
 
 export default function BasicExample() {
   return (
     <Router>
       <TopBar />
-      <Routes>
-
-          <Route path="/" element={<Home />} />
-          <Route path="home" element={<Home />} />
-          <Route path="about" element={<About />} />
+      <Container>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="home" element={<HomePage />} />
+          <Route path="list" element={<ListPage />} />
 
           {/* Using path="*"" means "match anything", so this route
                 acts like a catch-all for URLs that we don't have explicit
               routes for. */}
           {/* <Route path="*" element={<NoMatch />} /> */}
-      </Routes>
+        </Routes>
+      </Container>
     </Router >
   );
 }
