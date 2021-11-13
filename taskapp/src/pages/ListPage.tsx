@@ -64,9 +64,22 @@ export default function ListPage({ }: Props): ReactElement {
         <>
             <div className="d-flex justify-content-between">
                 <h2>LIST NAME</h2>
-                <div onClick={handleShow} className="fs-3">
-                    <IoAdd />
+                <div className="d-flex">
+                    {taskList.some(task => task.selected)
+                        ? (<>
+                            <div onClick={handleShow} className="fs-3">
+                                <IoAdd />
+                            </div>
+                            <div onClick={handleShow} className="fs-3">
+                                <IoAdd />
+                            </div></>)
+                        : (<div onClick={handleShow} className="fs-3">
+                            <IoAdd />
+                        </div>)
+                    }
                 </div>
+
+
             </div>
             <ListGroup as="ol">
                 {taskList.map((task, index) => (
@@ -81,7 +94,7 @@ export default function ListPage({ }: Props): ReactElement {
                             type="checkbox"
                             id={`default-checkbox`}
                             checked={task.selected}
-                            onChange={()=>mySetSelected(index, !task.selected)}
+                            onChange={() => mySetSelected(index, !task.selected)}
                         />
                         <div className="ms-2 me-auto">
                             <div className="d-flex">
