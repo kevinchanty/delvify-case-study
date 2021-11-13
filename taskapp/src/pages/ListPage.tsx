@@ -1,6 +1,6 @@
 import React, { ReactElement, useState } from 'react'
 import { Badge, Button, Form, FormControl, ListGroup, Modal } from 'react-bootstrap'
-import { IoMenuOutline, IoCloseOutline, IoAdd } from "react-icons/io5";
+import { IoAdd, IoTrashOutline, IoArrowUndoOutline, IoCreateOutline, IoCheckmarkOutline } from "react-icons/io5";
 
 
 interface Props {
@@ -24,31 +24,20 @@ const sampleData = [
     },
 ]
 
-const sampleData2 = [
-    {
-        id: 1,
-        name: "Task 1",
-        description: "sample description 3",
-        deadline: new Date(),
-        selected: false,
-    },
-    {
-        id: 2,
-        name: "Task 2",
-        description: "sample description 4",
-        deadline: new Date(),
-        selected: false,
-    },
-]
 function alertClicked() {
     alert('You clicked the third ListGroupItem');
 }
 
 export default function ListPage({ }: Props): ReactElement {
     const [taskList, setTaskList] = useState(sampleData)
-    const [show, setShow] = useState(false);
-    const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
+    
+    const [showAdd, setShowAdd] = useState(false);
+    const handleClose = () => setShowAdd(false);
+    const handleShowDelete = () => setShowAdd(true);
+
+    const [showDelete, setShowDelete] = useState(false);
+    const [showMove, setShowMove] = useState(true);
+
 
     function mySetSelected(index: number, checked: boolean) {
         console.log(checked)
@@ -67,13 +56,13 @@ export default function ListPage({ }: Props): ReactElement {
                 <div className="d-flex">
                     {taskList.some(task => task.selected)
                         ? (<>
-                            <div onClick={handleShow} className="fs-3">
-                                <IoAdd />
+                            <div onClick={handleShowDelete} className="fs-3">
+                                <IoArrowUndoOutline />
                             </div>
-                            <div onClick={handleShow} className="fs-3">
-                                <IoAdd />
+                            <div onClick={handleShowDelete} className="fs-3">
+                                <IoTrashOutline />
                             </div></>)
-                        : (<div onClick={handleShow} className="fs-3">
+                        : (<div onClick={handleShowDelete} className="fs-3">
                             <IoAdd />
                         </div>)
                     }
@@ -108,8 +97,10 @@ export default function ListPage({ }: Props): ReactElement {
                             </div>
                         </div>
                         <div className="fs-3">
-                            <IoMenuOutline />
-                            <IoCloseOutline />
+                            <IoCheckmarkOutline/>
+                            <IoCreateOutline />
+                            <IoArrowUndoOutline />
+                            <IoTrashOutline />
                         </div>
 
                     </ListGroup.Item>
@@ -117,10 +108,10 @@ export default function ListPage({ }: Props): ReactElement {
                 }
             </ListGroup>
 
-
-            <Modal show={show} onHide={handleClose}>
+            {/* Add Modal */}
+            <Modal show={showAdd} onHide={handleClose}>
                 <Modal.Header closeButton>
-                    <Modal.Title>New List</Modal.Title>
+                    <Modal.Title>New Task</Modal.Title>
                 </Modal.Header>
 
                 <Modal.Body>
@@ -143,6 +134,54 @@ export default function ListPage({ }: Props): ReactElement {
                         Close
                     </Button>
                     <Button variant="primary" onClick={handleClose}>
+                        Add
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            
+            {/* Delete Modal */}
+            <Modal show={showDelete} onHide={()=>setShowDelete(false)}>
+            <Modal.Header closeButton>
+                    <Modal.Title>Confirm to Delete LISTNAME ?</Modal.Title>
+                </Modal.Header>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={()=>setShowDelete(false)}>
+                        Close
+                    </Button>
+                    <Button variant="danger" onClick={()=>setShowDelete(false)}>
+                        Delete
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            
+            {/* Move Modal */}
+            <Modal show={showMove} onHide={()=>setShowMove(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Edit TASKNAME</Modal.Title>
+                </Modal.Header>
+
+                <Modal.Body>
+                    <Form.Label>
+                        Name:
+                    </Form.Label>
+                    <FormControl id="basic-url" aria-describedby="basic-addon3" />
+                    <Form.Label>
+                        Description
+                    </Form.Label>
+                    <FormControl id="basic-url" aria-describedby="basic-addon3" />
+                    <Form.Label>
+                        Deadline:
+                    </Form.Label>
+                    <FormControl id="basic-url" aria-describedby="basic-addon3" />
+                </Modal.Body>
+
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={()=>setShowMove(false)}>
+                        Close
+                    </Button>
+                    <Button variant="primary" onClick={()=>setShowMove(false)}>
                         Add
                     </Button>
                 </Modal.Footer>
