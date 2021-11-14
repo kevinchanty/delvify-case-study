@@ -1,66 +1,73 @@
-import { ReactElement, useState } from 'react'
+import { ReactElement, useContext, useEffect, useRef, useState } from 'react'
 import { Badge, Button, FormControl, ListGroup, Modal } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom';
-import { IoMenuOutline, IoCloseOutline } from "react-icons/io5";
-
+import { IoCloseOutline } from "react-icons/io5";
+import { ListContext, ListContextState } from '../context/ListContext';
 
 interface Props {
-
+    setListContextState: (state: ListContextState) => void
 }
 
-export default function HomePage({ }: Props): ReactElement {
+export default function HomePage({ setListContextState }: Props): ReactElement {
     const navigate = useNavigate();
 
+    const listContext = useContext(ListContext)
     const [showAdd, setShowAdd] = useState(false);
     const [showDelete, setShowDelete] = useState(false);
     const handleClose = () => setShowAdd(false);
     const handleShow = () => setShowAdd(true);
 
+    // Simuluate Load
+    const ref = useRef<ListContextState>({
+        status: 'LOADED',
+        value: [
+            {
+                id: 1,
+                name: "List 1",
+            },
+            {
+                id: 2,
+                name: "List 2",
+            },
+            {
+                id: 3,
+                name: "List 3",
+            },
+        ],
+    })
+
     return (
         <>
+            {/* Top Bar */}
             <div className="d-flex justify-content-between">
                 <h2>
                     My List
                 </h2>
                 <Button variant="primary" size="sm" onClick={handleShow}>Add List</Button>
+                <Button variant="primary" size="sm" onClick={() => setListContextState(ref.current)}>Load</Button>
             </div>
+
+            {/* List */}
             <ListGroup as="ol" numbered>
-                <ListGroup.Item
-                    as="li"
-                    className="d-flex justify-content-between align-items-start"
-                    action   
-                >
-                    <div className="ms-2 me-auto flex-fill" onClick={() => navigate("/list")}>
-                        <div className="fw-bold">List Name </div>
-                    </div>
-                    <div className="fs-3" onClick={()=>setShowDelete(true)}>
-                        <IoCloseOutline />
-                    </div>
-                </ListGroup.Item>
-                <ListGroup.Item
-                    as="li"
-                    className="d-flex justify-content-between align-items-start"
-                >
-                    <div className="ms-2 me-auto">
-                        <div className="fw-bold">List Name </div>
-                    </div>
-                    <Badge bg="primary" pill>
-                        14
-                    </Badge>
-                </ListGroup.Item>
-                <ListGroup.Item
-                    as="li"
-                    className="d-flex justify-content-between align-items-start"
-                >
-                    <div className="ms-2 me-auto">
-                        <div className="fw-bold">List Name </div>
-                    </div>
-                    <Badge bg="primary" pill>
-                        14
-                    </Badge>
-                </ListGroup.Item>
+                {listContext.status === "LOADED"
+                    ?
+                    listContext.value.map(list=>(<ListGroup.Item
+                        as="li"
+                        className="d-flex justify-content-between align-items-start"
+                        action
+                    >
+                        <div className="ms-2 me-auto flex-fill" onClick={() => navigate("/list")}>
+                            <div className="fw-bold">{list.name}</div>
+                        </div>
+                        <div className="fs-3" onClick={() => setShowDelete(true)}>
+                            <IoCloseOutline />
+                        </div>
+                    </ListGroup.Item>))
+                    : <div>Not Loaded</div>
+                }
             </ListGroup>
 
+            {/* Add Modal */}
             <Modal show={showAdd} onHide={handleClose}>
                 <Modal.Header closeButton>
                     <Modal.Title>Enter a Name:</Modal.Title>
@@ -78,12 +85,13 @@ export default function HomePage({ }: Props): ReactElement {
                 </Modal.Footer>
             </Modal>
 
+            {/* Delete Modal */}
             <Modal show={showDelete} onHide={handleClose}>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm to Delete LISTNAME ?</Modal.Title>
                 </Modal.Header>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={()=>setShowDelete(false)}>
+                    <Button variant="secondary" onClick={() => setShowDelete(false)}>
                         Close
                     </Button>
                     <Button variant="danger" onClick={handleClose}>

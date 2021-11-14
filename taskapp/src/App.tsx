@@ -1,4 +1,4 @@
-import { createContext } from "react";
+import { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -9,6 +9,7 @@ import TopBar from "./components/Topbar";
 import HomePage from "./pages/HomePage";
 import ListPage from "./pages/ListPage";
 import './App.scss';
+import { ListContext,ListContextState } from "./context/ListContext";
 
 const sampleListState = [
   {
@@ -25,39 +26,22 @@ const sampleListState = [
   },
 ]
 
-type ListState = {
-  id: number,
-  name: string,
-}
-
-export function setList(postList:Post[]) {
-  return {
-      type: "setPost" as const,
-      postList
-  }
-};
-
-export type ListAction = 
-    |ReturnType <typeof setPost>
-
-function listReducer(state: ListState, action) {
-  switch (action.type) {
-      return
-}
-}
 
 export default function App() {
-  const ListContext = createContext(sampleListState)
+  const [listContextState, setListContextState] = useState<ListContextState>({status:"LOADING"});
 
+  useEffect(() => {
+    console.log(listContextState)
+  }, [listContextState])
 
   return (
     <Router>
-      <ListContext.Provider value={sampleListState}>
+      <ListContext.Provider value={listContextState}>
         <TopBar />
         <Container>
           <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="home" element={<HomePage />} />
+            <Route path="/" element={<HomePage setListContextState={(state)=>setListContextState(state)} />} />
+            <Route path="home" element={<HomePage setListContextState={(state)=>setListContextState(state)}/>} />
             <Route path="list" element={<ListPage />} />
 
             {/* Using path="*"" means "match anything", so this route
