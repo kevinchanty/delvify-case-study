@@ -1,11 +1,13 @@
-import React, { ReactElement, useState } from 'react'
+import { ReactElement, useState } from 'react'
 import { Badge, Button, Form, FormControl, ListGroup, Modal } from 'react-bootstrap'
 import { IoAdd, IoTrashOutline, IoArrowUndoOutline, IoCreateOutline, IoCheckmarkOutline } from "react-icons/io5";
-
-
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { reverse } from 'dns';
 interface Props {
 
 }
+
 
 const sampleData = [
     {
@@ -13,63 +15,80 @@ const sampleData = [
         name: "Task 1",
         description: "sample description 1",
         deadline: new Date(),
-        selected: false,
+        isSelected: false,
+        isCompleted: false,
     },
     {
         id: 2,
         name: "Task 2",
         description: "sample description 2",
         deadline: new Date(),
-        selected: false,
+        isSelected: false,
+        isCompleted: true,
     },
 ]
 
-function alertClicked() {
-    alert('You clicked the third ListGroupItem');
-}
-
 export default function ListPage({ }: Props): ReactElement {
     const [taskList, setTaskList] = useState(sampleData)
-    
+
     const [showAdd, setShowAdd] = useState(false);
-    const handleClose = () => setShowAdd(false);
-    const handleShowDelete = () => setShowAdd(true);
+    const [addState, setAddState] = useState({ name: "", description: "", deadline: new Date(), target: [] as number[] });
 
-    const [showDelete, setShowDelete] = useState(false);
-    const [showMove, setShowMove] = useState(true);
+    const [showEdit, setShowEdit] = useState(false);
+    const [editState, setEditState] = useState({ name: "", description: "", deadline: new Date(), target: [] as number[] });
+
+    const [deleteState, setDeleteState] = useState({ show: false, target: [] as number[] });
+    const [showMove, setShowMove] = useState(false);
 
 
-    function mySetSelected(index: number, checked: boolean) {
-        console.log(checked)
+    function handleSelected(index: number, checked: boolean) {
         setTaskList(prevTaskList => {
             let newState = [...prevTaskList]
-            newState[index].selected = checked
+            newState[index].isSelected = checked
             return newState
         })
-        console.log(taskList)
     }
+
+    const isMultiSelected = taskList.some(task => task.isSelected)
+    const multiTarget = taskList.reduce<number[]>(
+        (prev, task, index) => {
+            if (task.isSelected) {
+                prev.push(index)
+            }
+            return prev
+        }, [])
+    const deelteTargetName = taskList.reduce<string[]>(
+        (prev, task, index) => {
+            if (deleteState.target.includes(index)) {
+                prev.push(task.name)
+            }
+            return prev
+        }, [])
 
     return (
         <>
+            {/* Top Bar */}
             <div className="d-flex justify-content-between">
                 <h2>LIST NAME</h2>
                 <div className="d-flex">
-                    {taskList.some(task => task.selected)
+                    {isMultiSelected
+                        // Multi-Select Icons
                         ? (<>
-                            <div onClick={handleShowDelete} className="fs-3">
+                            <div onClick={() => setShowMove(true)} className="fs-3">
                                 <IoArrowUndoOutline />
                             </div>
-                            <div onClick={handleShowDelete} className="fs-3">
+                            <div onClick={() => setDeleteState(prev => ({ show: true, target: multiTarget }))} className="fs-3">
                                 <IoTrashOutline />
-                            </div></>)
-                        : (<div onClick={handleShowDelete} className="fs-3">
+                            </div>
+                        </>)
+                        : (<div onClick={() => setShowAdd(true)} className="fs-3">
                             <IoAdd />
                         </div>)
                     }
                 </div>
-
-
             </div>
+
+            {/* Task List */}
             <ListGroup as="ol">
                 {taskList.map((task, index) => (
                     <ListGroup.Item
@@ -82,8 +101,8 @@ export default function ListPage({ }: Props): ReactElement {
                             as="input"
                             type="checkbox"
                             id={`default-checkbox`}
-                            checked={task.selected}
-                            onChange={() => mySetSelected(index, !task.selected)}
+                            checked={task.isSelected}
+                            onChange={() => handleSelected(index, !task.isSelected)}
                         />
                         <div className="ms-2 me-auto">
                             <div className="d-flex">
@@ -96,12 +115,22 @@ export default function ListPage({ }: Props): ReactElement {
                                 {task.description}
                             </div>
                         </div>
-                        <div className="fs-3">
-                            <IoCheckmarkOutline/>
-                            <IoCreateOutline />
-                            <IoArrowUndoOutline />
-                            <IoTrashOutline />
+                        {/* Task Icons */}
+                        <div className="fs-3 d-flex">
+                            <div onClick={() => setShowMove(true)}>
+                                <IoCheckmarkOutline />
+                            </div>
+                            <div onClick={() => setShowEdit(true)}>
+                                <IoCreateOutline />
+                            </div>
+                            <div onClick={() => setShowMove(true)}>
+                                <IoArrowUndoOutline />
+                            </div>
+                            <div onClick={() => setDeleteState(prev => ({show: true, target:[index]}))}>
+                                <IoTrashOutline />
+                            </div>
                         </div>
+
 
                     </ListGroup.Item>
                 ))
@@ -109,7 +138,7 @@ export default function ListPage({ }: Props): ReactElement {
             </ListGroup>
 
             {/* Add Modal */}
-            <Modal show={showAdd} onHide={handleClose}>
+            <Modal show={showAdd} onHide={() => setShowAdd(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>New Task</Modal.Title>
                 </Modal.Header>
@@ -118,46 +147,41 @@ export default function ListPage({ }: Props): ReactElement {
                     <Form.Label>
                         Name:
                     </Form.Label>
-                    <FormControl id="basic-url" aria-describedby="basic-addon3" />
+                    <FormControl aria-describedby="basic-addon3" value={addState.name} onChange={e => setAddState(prev => ({ ...prev, name: e.target.value, }))} />
                     <Form.Label>
                         Description
                     </Form.Label>
-                    <FormControl id="basic-url" aria-describedby="basic-addon3" />
+                    <FormControl aria-describedby="basic-addon3" value={addState.description} onChange={e => setAddState(prev => ({ ...prev, description: e.target.value, }))} />
                     <Form.Label>
                         Deadline:
                     </Form.Label>
-                    <FormControl id="basic-url" aria-describedby="basic-addon3" />
+                    <DatePicker
+                        onChange={(value: Date) => setAddState(prev => (
+                            {
+                                ...prev,
+                                deadline: value
+                            }
+                        )
+                        )}
+                        selected={addState.deadline}
+                        showTimeSelect
+                        dateFormat="Pp"
+                    />
+
                 </Modal.Body>
 
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>
+                    <Button variant="secondary" onClick={() => setShowAdd(false)}>
                         Close
                     </Button>
-                    <Button variant="primary" onClick={handleClose}>
+                    <Button variant="primary" onClick={() => setShowAdd(false)}>
                         Add
                     </Button>
                 </Modal.Footer>
             </Modal>
 
-            
-            {/* Delete Modal */}
-            <Modal show={showDelete} onHide={()=>setShowDelete(false)}>
-            <Modal.Header closeButton>
-                    <Modal.Title>Confirm to Delete LISTNAME ?</Modal.Title>
-                </Modal.Header>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={()=>setShowDelete(false)}>
-                        Close
-                    </Button>
-                    <Button variant="danger" onClick={()=>setShowDelete(false)}>
-                        Delete
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-
-            
-            {/* Move Modal */}
-            <Modal show={showMove} onHide={()=>setShowMove(false)}>
+            {/* Edit Modal */}
+            <Modal show={showEdit} onHide={() => setShowEdit(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Edit TASKNAME</Modal.Title>
                 </Modal.Header>
@@ -166,23 +190,75 @@ export default function ListPage({ }: Props): ReactElement {
                     <Form.Label>
                         Name:
                     </Form.Label>
-                    <FormControl id="basic-url" aria-describedby="basic-addon3" />
+                    <FormControl aria-describedby="basic-addon3" value={editState.name} onChange={e => setEditState(prev => ({ ...prev, name: e.target.value, }))} />
                     <Form.Label>
                         Description
                     </Form.Label>
-                    <FormControl id="basic-url" aria-describedby="basic-addon3" />
+                    <FormControl aria-describedby="basic-addon3" value={editState.description} onChange={e => setEditState(prev => ({ ...prev, description: e.target.value, }))} />
                     <Form.Label>
                         Deadline:
                     </Form.Label>
-                    <FormControl id="basic-url" aria-describedby="basic-addon3" />
+                    <DatePicker
+                        onChange={(value: Date) => setEditState(prev => (
+                            {
+                                ...prev,
+                                deadline: value
+                            }
+                        )
+                        )}
+                        selected={editState.deadline}
+                        showTimeSelect
+                        dateFormat="Pp"
+                    />
                 </Modal.Body>
 
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={()=>setShowMove(false)}>
+                    <Button variant="secondary" onClick={() => setShowEdit(false)}>
                         Close
                     </Button>
-                    <Button variant="primary" onClick={()=>setShowMove(false)}>
-                        Add
+                    <Button variant="primary" onClick={() => setShowEdit(false)}>
+                        Edit
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            {/* Delete Modal */}
+            <Modal show={deleteState.show} onHide={() => setDeleteState(prev => ({ ...prev, show: false }))}>
+                <Modal.Header closeButton>
+                    <Modal.Title>{`Confirm to Delete ${deelteTargetName.join(", ")} ?`}</Modal.Title>
+                </Modal.Header>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setDeleteState(prev => ({ ...prev, show: false }))}>
+                        Close
+                    </Button>
+                    <Button variant="danger" onClick={() => setDeleteState(prev => ({ ...prev, show: false }))}>
+                        Delete
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+
+            {/* Move Modal */}
+            <Modal show={showMove} onHide={() => setShowMove(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Move TASKNAME</Modal.Title>
+                </Modal.Header>
+
+                <Modal.Body>
+                    <Form.Label>
+                        Destination:
+                    </Form.Label>
+                    <Form.Select>
+                        <option>List One</option>
+                    </Form.Select>
+                </Modal.Body>
+
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowMove(false)}>
+                        Close
+                    </Button>
+                    <Button variant="primary" onClick={() => setShowMove(false)}>
+                        Move
                     </Button>
                 </Modal.Footer>
             </Modal>
