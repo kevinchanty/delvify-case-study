@@ -1,38 +1,72 @@
+import { createContext } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
 } from "react-router-dom";
-import TopBar from "./components/Topbar";
-import './App.scss';
-import HomePage from "./pages/HomePage";
 import { Container } from "react-bootstrap";
+import TopBar from "./components/Topbar";
+import HomePage from "./pages/HomePage";
 import ListPage from "./pages/ListPage";
+import './App.scss';
 
-export default function BasicExample() {
-  return (
-    <Router>
-      <TopBar />
-      <Container>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="home" element={<HomePage />} />
-          <Route path="list" element={<ListPage />} />
+const sampleListState = [
+  {
+    id: 1,
+    name: "List 1",
+  },
+  {
+    id: 2,
+    name: "List 2",
+  },
+  {
+    id: 3,
+    name: "List 3",
+  },
+]
 
-          {/* Using path="*"" means "match anything", so this route
-                acts like a catch-all for URLs that we don't have explicit
-              routes for. */}
-          {/* <Route path="*" element={<NoMatch />} /> */}
-        </Routes>
-      </Container>
-    </Router >
-  );
+type ListState = {
+  id: number,
+  name: string,
 }
 
-function About() {
+export function setList(postList:Post[]) {
+  return {
+      type: "setPost" as const,
+      postList
+  }
+};
+
+export type ListAction = 
+    |ReturnType <typeof setPost>
+
+function listReducer(state: ListState, action) {
+  switch (action.type) {
+      return
+}
+}
+
+export default function App() {
+  const ListContext = createContext(sampleListState)
+
+
   return (
-    <div>
-      <h2>About</h2>
-    </div>
+    <Router>
+      <ListContext.Provider value={sampleListState}>
+        <TopBar />
+        <Container>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="home" element={<HomePage />} />
+            <Route path="list" element={<ListPage />} />
+
+            {/* Using path="*"" means "match anything", so this route
+                acts like a catch-all for URLs that we don't have explicit
+              routes for. */}
+            {/* <Route path="*" element={<NoMatch />} /> */}
+          </Routes>
+        </Container>
+      </ListContext.Provider>
+    </Router >
   );
 }
