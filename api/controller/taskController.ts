@@ -1,31 +1,23 @@
-import { UserService } from "../service/userService";
 import { Request, Response } from "express";
-// import jwtDecode from "jwt-decode";
-// import nodemailer from "nodemailer";
-import dotenv from "dotenv";
+import { TaskService } from "../service/taskService";
 
+export class TaskController {
+    constructor(private taskService: TaskService) {}
 
-export type User = {
-    id: number;
-    username: string;
-};
+    getTasks = async (req: Request, res: Response) => {
+        const listId = parseInt(req.params.listId);
+        if (isNaN(listId)) {
+            res.status(400).json({error: 'Invalis List Id.'});
+            return
+        }
 
-
-
-dotenv.config();
-
-export class UserController {
-    constructor(private userService: UserService) {}
-
-    // getPostQuota = async (req: Request, res: Response) => {
-    //     const userId = req.user.id;
-    //     try {
-    //         const result = await this.photoFeedService.getPostQuota(userId);
-    //         res.send(result.toString())
-    //     } catch (error) {
-    //         console.log(error);
-    //         res.status(500).json({ error: 'Internal server error' })
-    //     }
-    // };
+        try {
+            const result = await this.taskService.getTasks(listId);
+            res.json(result)
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ error: 'Internal Server Error' })
+        }
+    };
 
 }

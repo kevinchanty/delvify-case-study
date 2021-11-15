@@ -2,11 +2,14 @@ import express from "express";
 import http from "http";
 import Knex from "knex";
 import dotenv from "dotenv";
+import cors from "cors";
 import ip from "ip";
 import { UserService } from "./service/userService";
 import { UserController } from './controller/userController';
 import { ListController } from './controller/listController';
 import { ListService } from './service/listService';
+import { TaskController } from "./controller/taskController";
+import { TaskService } from "./service/taskService";
 
 dotenv.config();
 
@@ -15,6 +18,7 @@ const PORT = 3100;
 const app = express();
 const server = new http.Server(app);
 app.use(express.json());
+app.use(cors())
 app.use(express.urlencoded({ extended: false }));
 
 // Knex
@@ -31,6 +35,8 @@ export const userService = new UserService(knex);
 export const userController = new UserController(userService);
 export const listService = new ListService(knex);
 export const listController = new ListController(listService);
+export const taskService = new TaskService(knex);
+export const taskController = new TaskController(taskService);
 
 import { routes } from "./routes";
 app.use("/", routes);
