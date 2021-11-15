@@ -40,8 +40,8 @@ export default function App() {
         <TopBar />
         <Container>
           <Routes>
-            <Route path="/" element={<HomePage setListContextState={(state)=>setListContextState(state)} />} />
-            <Route path="home" element={<HomePage setListContextState={(state)=>setListContextState(state)}/>} />
+            <Route path="/" element={<HomePage setListContextState={setListContextState} />} />
+            <Route path="home" element={<HomePage setListContextState={setListContextState}/>} />
             <Route path="list" element={<ListPage />} />
 
             {/* Using path="*"" means "match anything", so this route

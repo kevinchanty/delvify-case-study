@@ -1,8 +1,8 @@
-import { ReactElement, useContext, useEffect, useRef, useState } from 'react'
+import { ReactElement, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { Badge, Button, FormControl, ListGroup, Modal } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom';
 import { IoCloseOutline } from "react-icons/io5";
-import { ListContext, ListContextState } from '../context/ListContext';
+import { ListContext, ListContextState, ListValue } from '../context/ListContext';
 
 interface Props {
     setListContextState: (state: ListContextState) => void
@@ -23,18 +23,32 @@ export default function HomePage({ setListContextState }: Props): ReactElement {
         value: [
             {
                 id: 1,
+                user_id: 12,
                 name: "List 1",
-            },
-            {
-                id: 2,
-                name: "List 2",
-            },
-            {
-                id: 3,
-                name: "List 3",
+                is_deleted: false,
+                created_at: new Date().toString(),
+                updated_at: new Date().toString(),
             },
         ],
     })
+
+    const loadLists = useCallback(async () => {
+        const res = await fetch("http://localhost:3100/lists");
+        const lists = await res.json();
+        console.log(lists);
+
+        if (lists.error) {
+            console.log("error");
+            
+            return
+        };
+
+        setListContextState({ status: "LOADED", value: lists });
+    }, [setListContextState])
+
+    useEffect(() => {
+        loadLists();
+    }, [loadLists])
 
     return (
         <>
@@ -51,7 +65,7 @@ export default function HomePage({ setListContextState }: Props): ReactElement {
             <ListGroup as="ol" numbered>
                 {listContext.status === "LOADED"
                     ?
-                    listContext.value.map(list=>(<ListGroup.Item
+                    listContext.value.map(list => (<ListGroup.Item
                         as="li"
                         className="d-flex justify-content-between align-items-start"
                         action
@@ -63,7 +77,7 @@ export default function HomePage({ setListContextState }: Props): ReactElement {
                             <IoCloseOutline />
                         </div>
                     </ListGroup.Item>))
-                    : <div>Not Loaded</div>
+                    : <div>Loading...</div>
                 }
             </ListGroup>
 
