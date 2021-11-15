@@ -1,0 +1,34 @@
+#https://erd.surge.sh/
+# Relationship Types
+#  -    - one to one
+#  -<   - one to many
+#  >-   - many to one
+#  >-<  - many to many
+#  -0   - one to zero or one
+#  0-   - zero or one to one
+#  0-0  - zero or one to zero or one
+#  -0<  - one to zero or many
+#  >0-  - zero or many to one
+
+users
+----
+id pk
+username text
+password_hash text
+
+lists
+---
+id pk
+user_id fk >- users.id
+name text
+is_deleted boolean
+
+tasks
+---
+id pk
+list_id fk >- lists.id
+name text
+description text
+deadline timestamp
+is_completed boolean
+is_deleted boolean
