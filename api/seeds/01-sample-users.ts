@@ -38,19 +38,22 @@ export async function seed(knex: Knex): Promise<void> {
             list_id: firstTaskId[0],
             name: "kevin is doing great",
             description:"he just need to do anything",
-            deadline: new Date(2021,10,5)
+            created_at: new Date(2021,10,5),
+            deadline: new Date(2021,10,25)
         },
         {
             list_id: firstTaskId[0],
             name: "kevin is doing great2",
             description:"he just need to do anything2",
-            deadline: new Date(2021,10,6)
+            created_at: new Date(2021,10,6),
+            deadline: new Date(2021,10,26)
         },
         {
             list_id: firstTaskId[0],
             name: "kevin is doing great3",
             description:"he just need to do anything3",
-            deadline: new Date(2021,10,7)
+            created_at: new Date(2021,10,7),
+            deadline: new Date(2021,10,27)
         },
     ]);
 

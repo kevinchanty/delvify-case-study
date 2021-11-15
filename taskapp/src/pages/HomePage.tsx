@@ -31,25 +31,7 @@ export default function HomePage({ setListContextState }: Props): ReactElement {
             },
         ],
     })
-
-    const loadLists = useCallback(async () => {
-        const res = await fetch("http://localhost:3100/lists");
-        const lists = await res.json();
-        console.log(lists);
-
-        if (lists.error) {
-            console.log("error");
-            
-            return
-        };
-
-        setListContextState({ status: "LOADED", value: lists });
-    }, [setListContextState])
-
-    useEffect(() => {
-        loadLists();
-    }, [loadLists])
-
+    
     return (
         <>
             {/* Top Bar */}
@@ -70,7 +52,7 @@ export default function HomePage({ setListContextState }: Props): ReactElement {
                         className="d-flex justify-content-between align-items-start"
                         action
                     >
-                        <div className="ms-2 me-auto flex-fill" onClick={() => navigate("/list")}>
+                        <div className="ms-2 me-auto flex-fill" onClick={() => navigate(`/list/${list.id}`)}>
                             <div className="fw-bold">{list.name}</div>
                         </div>
                         <div className="fs-3" onClick={() => setShowDelete(true)}>

@@ -20,4 +20,54 @@ export class TaskController {
         }
     };
 
+    postTasks = async (req: Request, res: Response) => {
+        // const userId = req.user.id;
+        const body = req.body
+        
+        try {
+            const result = await this.taskService.postTasks(body.listId,body.name,body.description,body.deadline);
+            res.status(201).json({success: result})
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ error: 'Internal server error' })
+        }
+    };
+
+    putTasks = async (req: Request, res: Response) => {
+        // const userId = req.user.id;
+        const body = req.body
+        
+        try {
+            const result = await this.taskService.putTasks(body.id,body.name,body.description,body.deadline);
+            res.json({success: result})
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ error: 'Internal server error' })
+        }
+    };
+
+    putTasksStatus = async (req: Request, res: Response) => {
+        // const userId = req.user.id;
+        const body = req.body
+        try {
+            const result = await this.taskService.putTasksStatus(body.id,body.isCompleted);
+            res.json({success: result})
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ error: 'Internal server error' })
+        }
+    };
+
+    deleteTasks = async (req: Request, res: Response) => {
+        // const userId = req.user.id;
+        const id = req.body.id
+        
+        try {
+            const result = await this.taskService.deleteTasks(id);
+            res.json({success: result})
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ error: 'Internal server error' })
+        }
+    };
 }

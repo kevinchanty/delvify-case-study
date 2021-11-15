@@ -8,4 +8,8 @@ routes.get("/lists",listController.getList);
 
 // tasks
 routes.get("/tasks/:listId",taskController.getTasks);
+routes.post("/tasks",taskController.postTasks);
+routes.put("/tasks",taskController.putTasks);
+routes.put("/tasksStatus",taskController.putTasksStatus);
+routes.delete("/tasks/:id",taskController.deleteTasks);
 

@@ -5,7 +5,7 @@ export class ListController {
 
     getList = async (req: Request, res: Response) => {
         // const userId = req.user.id;
-        const userId = 4;
+        const userId = 6;
         try {
             const result = await this.listService.getList(userId);
             res.json(result)
