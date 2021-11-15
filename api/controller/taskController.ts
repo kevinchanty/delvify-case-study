@@ -51,6 +51,9 @@ export class TaskController {
         const body = req.body
         try {
             const result = await this.taskService.putTasksStatus(body.id,body.isCompleted);
+            if (body.isCompleted) {
+                console.log(`Mock Email Sent: Tasks ${result.join(", ")} are completed.`)
+            }
             res.json({success: result})
         } catch (error) {
             console.log(error);
@@ -60,10 +63,23 @@ export class TaskController {
 
     deleteTasks = async (req: Request, res: Response) => {
         // const userId = req.user.id;
-        const id = req.body.id
-        
+        const id = await req.body.id
+        console.log(id);
+    
         try {
             const result = await this.taskService.deleteTasks(id);
+            res.json({success: result})
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ error: 'Internal server error' })
+        }
+    };
+
+    putTaskList = async (req: Request, res: Response) => {
+        const {id, listId} = req.body
+        
+        try {
+            const result = await this.taskService.putTaskList(id,listId);
             res.json({success: result})
         } catch (error) {
             console.log(error);

@@ -1,8 +1,8 @@
-import { ReactElement, useCallback, useContext, useEffect, useRef, useState } from 'react'
-import { Badge, Button, FormControl, ListGroup, Modal } from 'react-bootstrap'
+import { ReactElement, useContext, useRef, useState } from 'react'
+import { Button, FormControl, ListGroup, Modal } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom';
 import { IoCloseOutline } from "react-icons/io5";
-import { ListContext, ListContextState, ListValue } from '../context/ListContext';
+import { ListContext, ListContextState } from '../context/ListContext';
 
 interface Props {
     setListContextState: (state: ListContextState) => void
@@ -40,7 +40,6 @@ export default function HomePage({ setListContextState }: Props): ReactElement {
                     My List
                 </h2>
                 <Button variant="primary" size="sm" onClick={handleShow}>Add List</Button>
-                <Button variant="primary" size="sm" onClick={() => setListContextState(ref.current)}>Load</Button>
             </div>
 
             {/* List */}
@@ -48,6 +47,7 @@ export default function HomePage({ setListContextState }: Props): ReactElement {
                 {listContext.status === "LOADED"
                     ?
                     listContext.value.map(list => (<ListGroup.Item
+                        key={list.id}
                         as="li"
                         className="d-flex justify-content-between align-items-start"
                         action
@@ -90,7 +90,7 @@ export default function HomePage({ setListContextState }: Props): ReactElement {
                     <Button variant="secondary" onClick={() => setShowDelete(false)}>
                         Close
                     </Button>
-                    <Button variant="danger" onClick={handleClose}>
+                    <Button variant="danger" onClick={() => setShowDelete(false)}>
                         Delete
                     </Button>
                 </Modal.Footer>

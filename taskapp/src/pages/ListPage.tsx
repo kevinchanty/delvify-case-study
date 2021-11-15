@@ -4,7 +4,7 @@ import { IoAdd, IoTrashOutline, IoArrowUndoOutline, IoCreateOutline, IoCheckmark
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useParams } from 'react-router';
-import { ListContext } from '../context/ListContext';
+import { ListContext, ListValue } from '../context/ListContext';
 interface Props {
 
 }
@@ -58,7 +58,7 @@ export default function ListPage({ }: Props): ReactElement {
             }
             return prev
         }, [])
-    const [moveState, setMoveState] = useState({ show: false, target: [] as number[] });
+    const [moveState, setMoveState] = useState({ show: false, target: [] as number[], listId: 0 });
     const moveTargetName = taskList!.reduce<string[]>(
         (prev, task) => {
             if (moveState.target.includes(task.id)) {
@@ -101,9 +101,9 @@ export default function ListPage({ }: Props): ReactElement {
         setLoadStatus("LOADED");
         setTaskList(result);
 
-    }, [setTaskList,listId])
+    }, [setTaskList, listId])
 
-    const addSubmit = useCallback( async () =>{
+    const addSubmit = useCallback(async () => {
         const body = {
             listId: listId,
             name: addState.name,
@@ -136,7 +136,7 @@ export default function ListPage({ }: Props): ReactElement {
         setShowAdd(false);
         setAddState({ name: "", description: "", deadline: new Date() });
         loadTaskList();
-    },[setShowAdd,setAddState,loadTaskList,listId,addState])
+    }, [setShowAdd, setAddState, loadTaskList, listId, addState])
 
     const editSubmit = useCallback(async () => {
         const body = {
@@ -172,7 +172,7 @@ export default function ListPage({ }: Props): ReactElement {
         loadTaskList();
     }, [setEditState, loadTaskList, editState])
 
-    const toogleCompleted = useCallback(async (id:number, isCompleted: boolean) => {
+    const toogleCompleted = useCallback(async (id: number, isCompleted: boolean) => {
         const body = {
             id,
             isCompleted,
@@ -201,21 +201,50 @@ export default function ListPage({ }: Props): ReactElement {
             console.error(`Failed to POST API:`, json.error);
         }
         loadTaskList();
-    },[loadTaskList])
+    }, [loadTaskList])
 
-    
     const deleteSubmit = useCallback(async () => {
         const body = {
-            id: editState.target,
-            name: editState.name,
-            description: editState.description,
-            deadline: editState.deadline,
+            id: deleteState.target,
         }
         let headers: Headers = new Headers();
         headers.append("Content-Type", "application/json");
         let res: Response;
         try {
             res = await fetch(`http://localhost:3100/tasks`, {
+                headers,
+                method: "DELETE",
+                body: JSON.stringify(body)
+            });
+        } catch (error) {
+            console.error(`Failed to POST:`, error);
+            return
+        }
+        let json;
+        try {
+            json = await res.json();
+        } catch (error) {
+            console.error(`Failed decode json, POST:`, error);
+            return
+        }
+        if (json.error) {
+            console.error(`Failed to POST API:`, json.error);
+        }
+        setDeleteState({ show: false, target: [] });
+        loadTaskList();
+    }, [setDeleteState, loadTaskList, deleteState])
+
+
+    const moveSubmit = useCallback(async () => {
+        const body = {
+            id: moveState.target,
+            listId: moveState.listId
+        }
+        let headers: Headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        let res: Response;
+        try {
+            res = await fetch(`http://localhost:3100/tasksList`, {
                 headers,
                 method: "PUT",
                 body: JSON.stringify(body)
@@ -234,9 +263,10 @@ export default function ListPage({ }: Props): ReactElement {
         if (json.error) {
             console.error(`Failed to POST API:`, json.error);
         }
-        setEditState({ show: false, name: "", description: "", deadline: new Date(), target: 0 });
+        setMoveState({ show: false, target: [] as number[], listId: 0 });
         loadTaskList();
-    }, [setEditState, loadTaskList, editState])
+    }, [setMoveState, loadTaskList, moveState])
+
     useEffect(() => {
         loadTaskList()
     }, [loadTaskList])
@@ -250,7 +280,12 @@ export default function ListPage({ }: Props): ReactElement {
                     {isMultiSelected
                         // Multi-Select Icons
                         ? (<>
-                            <div onClick={() => setMoveState({ show: true, target: multiTarget })} className="fs-3">
+                            <div onClick={() => setMoveState({
+                                show: true,
+                                target: multiTarget,
+                                listId: (listContext as any as { value: ListValue[] }).value.filter(list => list.id !== parseInt(listId!))[0].id,
+                            }
+                            )} className="fs-3">
                                 <IoArrowUndoOutline />
                             </div>
                             <div onClick={() => setDeleteState({ show: true, target: multiTarget })} className="fs-3">
@@ -307,7 +342,11 @@ export default function ListPage({ }: Props): ReactElement {
                                 <div onClick={() => setEditState({ show: true, name: task.name, description: task.description, deadline: new Date(task.deadline), target: task.id })}>
                                     <IoCreateOutline />
                                 </div>
-                                <div onClick={() => setMoveState({ show: true, target: [task.id] })}>
+                                <div onClick={() => setMoveState({
+                                    show: true,
+                                    target: [task.id],
+                                    listId: (listContext as any as { value: ListValue[] }).value.filter(list => list.id !== parseInt(listId!))[0].id,
+                                })}>
                                     <IoArrowUndoOutline />
                                 </div>
                                 <div onClick={() => setDeleteState({ show: true, target: [task.id] })}>
@@ -415,14 +454,14 @@ export default function ListPage({ }: Props): ReactElement {
                     <Button variant="secondary" onClick={() => setDeleteState({ show: false, target: [] })}>
                         Close
                     </Button>
-                    <Button variant="danger" onClick={() => setDeleteState({ show: false, target: [] })}>
+                    <Button variant="danger" onClick={() => deleteSubmit()}>
                         Delete
                     </Button>
                 </Modal.Footer>
             </Modal>
 
             {/* Move Modal */}
-            <Modal show={moveState.show} onHide={() => setMoveState({ show: false, target: [] })}>
+            <Modal show={moveState.show} onHide={() => setMoveState({ show: false, target: [], listId: 0 })}>
                 <Modal.Header closeButton>
                     <Modal.Title>{`Move ${moveTargetName.join(", ")}`}</Modal.Title>
                 </Modal.Header>
@@ -431,16 +470,24 @@ export default function ListPage({ }: Props): ReactElement {
                     <Form.Label>
                         Destination:
                     </Form.Label>
-                    <Form.Select>
-                        <option>List One</option>
+                    <Form.Select value={moveState.listId} onChange={e => {
+                        const newListId = parseInt(e.target.value)
+
+                        setMoveState(prev => ({ ...prev, listId: newListId }))
+
+                    }}>
+                        {listContext.status === "LOADED" ?
+                            listContext.value.filter(list => list.id !== parseInt(listId!)).map(list =>
+                                <option key={list.id} value={list.id}>{list.name}</option>)
+                            : ""}
                     </Form.Select>
                 </Modal.Body>
 
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setMoveState({ show: false, target: [] })}>
+                    <Button variant="secondary" onClick={() => setMoveState({ show: false, target: [], listId: 0 })}>
                         Close
                     </Button>
-                    <Button variant="primary" onClick={() => setMoveState({ show: false, target: [] })}>
+                    <Button variant="primary" onClick={() => moveSubmit()}>
                         Move
                     </Button>
                 </Modal.Footer>

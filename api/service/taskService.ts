@@ -53,9 +53,23 @@ export class TaskService {
     };
 
     deleteTasks = async (id: number[]) => {
+        console.log(id);
+        
         const result = await this.knex("tasks")
             .update({
                 is_deleted: true,
+                updated_at: new Date()
+            })
+            .whereIn("id",id)
+            .returning("id")
+
+        return result;
+    };
+
+    putTaskList = async (id: number[], listId: number) => {
+        const result = await this.knex("tasks")
+            .update({
+                list_id: listId,
                 updated_at: new Date()
             })
             .whereIn("id",id)
