@@ -40,6 +40,7 @@ export const taskController = new TaskController(taskService);
 
 import { routes } from "./routes";
 app.use("/", routes);
+app.use(express.static("./public"))
 
 app.use((req, res) => {
     res.status(404).json({
