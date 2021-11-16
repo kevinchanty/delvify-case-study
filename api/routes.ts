@@ -5,6 +5,8 @@ export const routes = express.Router();
 
 // lists
 routes.get("/lists",listController.getLists);
+routes.post("/lists",listController.postLists);
+routes.delete("/lists",listController.deleteLists);
 
 // tasks
 routes.get("/tasks/:listId",taskController.getTasks);

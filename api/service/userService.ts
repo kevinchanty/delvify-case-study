@@ -3,19 +3,13 @@ import { Knex } from "knex";
 export class UserService {
     constructor(private knex: Knex) { }
 
-    getPostQuota = async (userId: number) => {
-        const rows = await this.knex
-            .select("*")
-            .from("student_posts")
-            .where("user_id", userId);
+    getDemoId = async () => {
+        const demoUserId = await this.knex
+            .select("id")
+            .from("users")
+            .where("username", "kevin")
+            .first()
 
-        const todayRows = rows.filter((row) => {
-            const date = new Date(row.create_at).getDate();
-            return date === new Date().getDate();
-        });
-
-        const result = 3 - todayRows.length;
-
-        return result;
+        return demoUserId["id"];
     };
 }

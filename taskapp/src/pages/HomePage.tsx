@@ -1,4 +1,4 @@
-import { ReactElement, useContext, useRef, useState } from 'react'
+import { ReactElement, useCallback, useContext, useState } from 'react'
 import { Button, FormControl, ListGroup, Modal } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom';
 import { IoCloseOutline } from "react-icons/io5";
@@ -6,32 +6,80 @@ import { ListContext, ListContextState } from '../context/ListContext';
 
 interface Props {
     setListContextState: (state: ListContextState) => void
+    loadLists: ()=> void
 }
 
-export default function HomePage({ setListContextState }: Props): ReactElement {
+export default function HomePage({ setListContextState, loadLists }: Props): ReactElement {
     const navigate = useNavigate();
 
     const listContext = useContext(ListContext)
-    const [showAdd, setShowAdd] = useState(false);
-    const [showDelete, setShowDelete] = useState(false);
-    const handleClose = () => setShowAdd(false);
-    const handleShow = () => setShowAdd(true);
+    const [addState, setAddState] = useState({ show: false, name: "" });
+    const [deleteState, setDeleteState] = useState({ show: false, target: 0 , name: ""});
+    const handleClose = () => setAddState({ show: false, name: "" });
+    const handleShow = () => setAddState({ show: true, name: "" });
 
-    // Simuluate Load
-    const ref = useRef<ListContextState>({
-        status: 'LOADED',
-        value: [
-            {
-                id: 1,
-                user_id: 12,
-                name: "List 1",
-                is_deleted: false,
-                created_at: new Date().toString(),
-                updated_at: new Date().toString(),
-            },
-        ],
-    })
-    
+    const addSubmit = useCallback(async () => {
+        const body = {
+            name: addState.name,
+        }
+        let headers: Headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        let res: Response;
+        try {
+            res = await fetch(`http://localhost:3100/lists`, {
+                headers,
+                method: "POST",
+                body: JSON.stringify(body)
+            });
+        } catch (error) {
+            console.error(`Failed to POST:`, error);
+            return
+        }
+        let json;
+        try {
+            json = await res.json();
+        } catch (error) {
+            console.error(`Failed decode json, POST:`, error);
+            return
+        }
+        if (json.error) {
+            console.error(`Failed to POST API:`, json.error);
+        }
+        setAddState({ show: false, name: "" });
+        loadLists();
+    },[loadLists,setAddState,addState],)
+
+    const deleteSubmit = useCallback(async () => {
+        const body = {
+            listId: deleteState.target
+        }
+        let headers: Headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        let res: Response;
+        try {
+            res = await fetch(`http://localhost:3100/lists`, {
+                headers,
+                method: "DELETE",
+                body: JSON.stringify(body)
+            });
+        } catch (error) {
+            console.error(`Failed to POST:`, error);
+            return
+        }
+        let json;
+        try {
+            json = await res.json();
+        } catch (error) {
+            console.error(`Failed decode json, POST:`, error);
+            return
+        }
+        if (json.error) {
+            console.error(`Failed to POST API:`, json.error);
+        }
+        setDeleteState({ show: false, target: 0 , name: ""});
+        loadLists();
+    },[loadLists,setDeleteState,deleteState],)
+
     return (
         <>
             {/* Top Bar */}
@@ -55,7 +103,7 @@ export default function HomePage({ setListContextState }: Props): ReactElement {
                         <div className="ms-2 me-auto flex-fill" onClick={() => navigate(`/list/${list.id}`)}>
                             <div className="fw-bold">{list.name}</div>
                         </div>
-                        <div className="fs-3" onClick={() => setShowDelete(true)}>
+                        <div className="fs-3" onClick={() => setDeleteState({ show: true, target: list.id , name: list.name})}>
                             <IoCloseOutline />
                         </div>
                     </ListGroup.Item>))
@@ -64,33 +112,33 @@ export default function HomePage({ setListContextState }: Props): ReactElement {
             </ListGroup>
 
             {/* Add Modal */}
-            <Modal show={showAdd} onHide={handleClose}>
+            <Modal show={addState.show} onHide={handleClose}>
                 <Modal.Header closeButton>
                     <Modal.Title>Enter a Name:</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <FormControl id="basic-url" aria-describedby="basic-addon3" />
+                    <FormControl value={addState.name} onChange={e => setAddState({ show: true, name: e.target.value })} aria-describedby="basic-addon3" />
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleClose}>
                         Close
                     </Button>
-                    <Button variant="primary" onClick={handleClose}>
+                    <Button variant="primary" onClick={addSubmit}>
                         Add
                     </Button>
                 </Modal.Footer>
             </Modal>
 
             {/* Delete Modal */}
-            <Modal show={showDelete} onHide={handleClose}>
+            <Modal show={deleteState.show} onHide={()=> setDeleteState({ show: false, target: 0 , name: ""})}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Confirm to Delete LISTNAME ?</Modal.Title>
+                    <Modal.Title>{`Confirm to Delete ${deleteState.name} ?`}</Modal.Title>
                 </Modal.Header>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowDelete(false)}>
+                    <Button variant="secondary" onClick={() => setDeleteState({ show: false, target: 0 , name: ""})}>
                         Close
                     </Button>
-                    <Button variant="danger" onClick={() => setShowDelete(false)}>
+                    <Button variant="danger" onClick={deleteSubmit}>
                         Delete
                     </Button>
                 </Modal.Footer>

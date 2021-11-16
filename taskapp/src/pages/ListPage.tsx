@@ -5,9 +5,6 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useParams } from 'react-router';
 import { ListContext, ListValue } from '../context/ListContext';
-interface Props {
-
-}
 
 export type Task = {
     id: number,
@@ -38,7 +35,7 @@ const sampleData = [
 
 ]
 
-export default function ListPage({ }: Props): ReactElement {
+export default function ListPage(): ReactElement {
     const { listId } = useParams()
     const listContext = useContext(ListContext)
 
@@ -95,10 +92,12 @@ export default function ListPage({ }: Props): ReactElement {
 
         const result = json.map((task: Task) => ({
             ...task,
-            deadline: new Date(task.deadline)
+            deadline: new Date(task.deadline),
+            isSelected:false,
         }))
 
         setLoadStatus("LOADED");
+
         setTaskList(result);
 
     }, [setTaskList, listId])

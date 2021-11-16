@@ -34,7 +34,7 @@ const knex = Knex(knexConfig);
 export const userService = new UserService(knex);
 export const userController = new UserController(userService);
 export const listService = new ListService(knex);
-export const listController = new ListController(listService);
+export const listController = new ListController(listService,userService);
 export const taskService = new TaskService(knex);
 export const taskController = new TaskController(taskService);
 

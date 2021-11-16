@@ -6,32 +6,35 @@ export class ListService {
 
     getLists = async (userId: number) => {
 
-        const demoUserId = await this.knex
-            .select("id")
-            .from("users")
-            .where("username","kevin")
-            .first()
-
         const result = await this.knex
             .select("*")
             .from("lists")
-            .where("user_id", demoUserId["id"]);
+            .where("user_id", userId)
+            .andWhere("is_deleted",false);
 
         // const result = 3 - todayRows.length;
 
         return (result);
     };
 
-    postList = async (listId: number, name: string, description: string, deadline: Date) => {
-        const result = await this.knex("tasks")
+    postLists = async (userId: number, name: string) => {
+        const result = await this.knex("lists")
             .insert({
-                list_id:listId,
+                user_id: userId,
                 name,
-                description,
-                deadline
             }).returning("id")
         
+        return result;
+    };
 
+    deleteLists = async (listId: number) => {
+        const result = await this.knex("lists")
+            .update({
+                is_deleted:true,
+            })
+            .where("id",listId)
+            .returning("id")
+        
         return result;
     };
 }
