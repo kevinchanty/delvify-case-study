@@ -9,8 +9,7 @@ services:
       - ./data:/var/lib/postgresql/data
   task-api:
     image: "taskapp:latest"
-    depends_on:
-      - task-db
+    depends_on: ["task-db"]
     env_file:
       - .env
     environment: 
