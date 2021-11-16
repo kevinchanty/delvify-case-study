@@ -10,25 +10,25 @@ export async function seed(knex: Knex): Promise<void> {
     await knex("users").del();
 
     // Inserts seed entries
-    const kevinId = await knex("users").insert([
+    const demoId = await knex("users").insert([
         {
-            username: "kevin",
-            password_hash: await hashPassword("0901")
+            username: "demo_user",
+            password_hash: await hashPassword("demo")
         },
     ]).returning("id");
 
     const firstTaskId = await knex("lists").insert([
         {
-            user_id: kevinId[0],
-            name: "kevin's list of demo"
+            user_id: demoId[0],
+            name: "list of demo"
         },
         {
-            user_id: kevinId[0],
-            name: "kevin's list of demo2"
+            user_id: demoId[0],
+            name: "list of demo2"
         },
         {
-            user_id: kevinId[0],
-            name: "kevin's list of demo3"
+            user_id: demoId[0],
+            name: "list of demo3"
         },
     ]).returning("id");
 
@@ -36,22 +36,22 @@ export async function seed(knex: Knex): Promise<void> {
     await knex("tasks").insert([
         {
             list_id: firstTaskId[0],
-            name: "kevin is doing great",
-            description:"he just need to do anything",
+            name: "kevin's birthday",
+            description:"cake",
             created_at: new Date(2021,10,5),
             deadline: new Date(2021,10,25)
         },
         {
             list_id: firstTaskId[0],
-            name: "kevin is doing great2",
-            description:"he just need to do anything2",
+            name: "apple",
+            description:"buy",
             created_at: new Date(2021,10,6),
             deadline: new Date(2021,10,26)
         },
         {
             list_id: firstTaskId[0],
-            name: "kevin is doing great3",
-            description:"he just need to do anything3",
+            name: "orange",
+            description:"sell",
             created_at: new Date(2021,10,7),
             deadline: new Date(2021,10,27)
         },

@@ -43,7 +43,7 @@ export default function ListPage(): ReactElement {
     const [loadStatus, setLoadStatus] = useState<"LOADING" | "ERROR" | "LOADED">("LOADING");
 
     const [showAdd, setShowAdd] = useState(false);
-    const [addState, setAddState] = useState({ name: "", description: "", deadline: new Date() });
+    const [addState, setAddState] = useState({ name: "", description: "", deadline: new Date(Date.now() + 3600000) });
 
     const [editState, setEditState] = useState({ show: false, name: "", description: "", deadline: new Date(), target: 0 });
 
@@ -133,7 +133,7 @@ export default function ListPage(): ReactElement {
             console.error(`Failed to POST API:`, json.error);
         }
         setShowAdd(false);
-        setAddState({ name: "", description: "", deadline: new Date() });
+        setAddState({ name: "", description: "", deadline: new Date(Date.now() + 3600000) });
         loadTaskList();
     }, [setShowAdd, setAddState, loadTaskList, listId, addState])
 

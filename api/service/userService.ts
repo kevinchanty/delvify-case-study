@@ -7,7 +7,7 @@ export class UserService {
         const demoUserId = await this.knex
             .select("id")
             .from("users")
-            .where("username", "kevin")
+            .where("username", "demo_user")
             .first()
 
         return demoUserId["id"];

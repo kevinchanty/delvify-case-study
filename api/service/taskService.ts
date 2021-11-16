@@ -13,16 +13,28 @@ export class TaskService {
         return result;
     };
 
-    postTasks = async (listId: number, name: string, description: string, deadline: Date) => {
+    getAllTasks = async () => {
+        const result = await this.knex
+            .select<{id:number,deadline:Date}[]>(["id","deadline"])
+            .from("tasks")
+            .andWhere("is_deleted",false)
+            .orderBy("created_at")
+
+        let output = result.filter(list=> 
+            list.deadline.getTime() > Date.now()
+        )
+        return output;
+    };
+
+    postTasks = async (listId: number, name: string, description: string, deadline: Date):Promise<{id:number,deadline:Date}[]> => {
         const result = await this.knex("tasks")
             .insert({
                 list_id:listId,
                 name,
                 description,
                 deadline
-            }).returning("id")
+            }).returning<any,{id:number,deadline:Date}[]>(["id","deadline"])
         
-
         return result;
     };
 

@@ -2,7 +2,23 @@ import { Request, Response } from "express";
 import { TaskService } from "../service/taskService";
 
 export class TaskController {
-    constructor(private taskService: TaskService) {}
+    private taskService:TaskService
+
+    constructor(taskService: TaskService) {
+         this.taskService = taskService;
+        //  Set Up Timer
+        this.setUpTimer()
+    }
+
+    setUpTimer = async()=>{
+        const result = await this.taskService.getAllTasks();
+        result.forEach(list =>{
+            setTimeout(()=>{
+                console.log(`Mock Email Sent: Tasks ${result[0].id} is due.`);
+            },list.deadline.getTime() - Date.now())
+        })
+        
+    }
 
     getTasks = async (req: Request, res: Response) => {
         const listId = parseInt(req.params.listId);
@@ -26,6 +42,13 @@ export class TaskController {
         
         try {
             const result = await this.taskService.postTasks(body.listId,body.name,body.description,body.deadline);
+            if (result[0].deadline.getTime() > Date.now()) {
+                setTimeout(()=>{
+                    console.log(`Mock Email Sent: Tasks ${result[0].id} is due.`);
+                    
+                },result[0].deadline.getTime() - Date.now())
+                
+            }
             res.status(201).json({success: result})
         } catch (error) {
             console.log(error);
@@ -64,7 +87,6 @@ export class TaskController {
     deleteTasks = async (req: Request, res: Response) => {
         // const userId = req.user.id;
         const id = await req.body.id
-        console.log(id);
     
         try {
             const result = await this.taskService.deleteTasks(id);
