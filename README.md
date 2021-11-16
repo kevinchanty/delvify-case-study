@@ -3,11 +3,17 @@
 ## Set up the app
 ---
 1. build the docker image
-    ```bash
+    ```
     docker build ./api --tag taskapp
     ```
-2. run the docker container
-    ```bash
+
+2. create a ".env" file by copying ".env.example".
+    ```
+    cp ".env.example" ".env"  
+    ```
+
+3. run the docker container
+    ```
     docker-compose up
     ```
 
@@ -15,8 +21,11 @@
     Please wait for db setup and restart run "docker-compose up" serveral times if error occurs.
 
     or
+
     ```
     docker-compose up -d
+    docker-compose logs -f
     ```
 
-3. Visit app at http://localhost:3100
+
+4. Visit app at http://localhost:3100
