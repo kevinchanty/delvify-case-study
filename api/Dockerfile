@@ -4,5 +4,4 @@ COPY ["package.json", "./"]
 RUN npm install --production
 COPY . .
 EXPOSE 3100
-CMD npm run setup &&\
-    npm start
+CMD ["npm", "run", "setup"] \

@@ -2,31 +2,39 @@ import { Knex } from "knex";
 
 
 export async function up(knex: Knex): Promise<void> {
-    await knex.schema.createTable("users", (table) => {
-        table.increments();
-        table.text("username").notNullable();
-        table.text("password_hash").notNullable();
-        table.timestamps(true, true);
-    });
+    async function setup() {
+        await knex.schema.createTable("users", (table) => {
+            table.increments();
+            table.text("username").notNullable();
+            table.text("password_hash").notNullable();
+            table.timestamps(true, true);
+        });
 
-    await knex.schema.createTable("lists", (table) => {
-        table.increments();
-        table.integer("user_id").references("users.id").unsigned().notNullable();
-        table.text("name").notNullable();
-        table.boolean("is_deleted").defaultTo(false).notNullable();
-        table.timestamps(true,true);
-    });
+        await knex.schema.createTable("lists", (table) => {
+            table.increments();
+            table.integer("user_id").references("users.id").unsigned().notNullable();
+            table.text("name").notNullable();
+            table.boolean("is_deleted").defaultTo(false).notNullable();
+            table.timestamps(true, true);
+        });
 
-    await knex.schema.createTable("tasks", table => {
-        table.increments();
-        table.integer("list_id").references("lists.id").unsigned().notNullable();
-        table.text("name").notNullable();
-        table.text("description").notNullable();
-        table.timestamp("deadline").notNullable();
-        table.boolean("is_completed").defaultTo(false).notNullable();
-        table.boolean("is_deleted").defaultTo(false).notNullable();
-        table.timestamps(true,true);
-    })
+        await knex.schema.createTable("tasks", table => {
+            table.increments();
+            table.integer("list_id").references("lists.id").unsigned().notNullable();
+            table.text("name").notNullable();
+            table.text("description").notNullable();
+            table.timestamp("deadline").notNullable();
+            table.boolean("is_completed").defaultTo(false).notNullable();
+            table.boolean("is_deleted").defaultTo(false).notNullable();
+            table.timestamps(true, true);
+        })
+    }
+    try {
+        await setup();
+    } catch (e) {
+        console.log("Error occurs when trying to connect DB. DB could be initializing, reconnecting... ");
+        setTimeout(async () => await setup(), 5000)
+    }
 
 }
 

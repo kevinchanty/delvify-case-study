@@ -75,6 +75,7 @@ module.exports = {
                 );
             },
         },
+        acquireConnectionTimeout:120000,
         migrations: {
             tableName: "knex_migrations",
         },

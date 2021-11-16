@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  task-db:
+    image: "postgres:13"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/var/lib/postgresql/data
+  task-api:
+    image: "taskapp:latest"
+    depends_on:
+      - task-db
+    env_file:
+      - .env
+    environment: 
+      NODE_ENV: production
+      POSTGRES_HOST: task-db
+    ports:
+      - "3100:3100"
